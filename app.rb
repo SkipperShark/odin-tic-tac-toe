@@ -15,40 +15,58 @@
 
 # Represents the tic tac toe board
 class Board
-  attr_accessor :board
+  attr_accessor :board, :mark_types
+
+  @mark_types = %w[X O x o]
 
   def initialize
     @board = [
-      ['X', nil, nil],
-      [nil, 'O', nil],
+      [nil, nil, nil],
+      [nil, nil, nil],
       [nil, nil, nil]
     ]
+    @mark_types = %w[X O x o]
   end
 
   def display
-    # pp @board
     @board.each do |row|
-      # puts row
-      # puts row.class
-      row.each do |col|
-        display_space(col)
+      row.each.with_index do |col, i|
+        display_space(col, i)
       end
       print "\n"
     end
   end
 
-  private
+  def mark(position, mark_type)
+    invalid_position = position <= 0 || position > 9
+    if invalid_position
+      puts "#{position} is an invalid position!"
+      return
+    end
 
-  def display_space(space)
-    empty_space = space.nil? ? true : false
-    empty_space ? (print '   ') : (print " #{space} ")
-    print '|'
+    valid_mark_type = mark_types.include?(mark_type)
+    unless valid_mark_type
+      puts "#{mark_type} is an invalid mark type!"
+      return
+    end
+
+    row = (position / 3).to_i
+    column = (position % 3) - 1
+    board[row][column] = mark_type
+    puts "\n\n"
+    display
   end
 
-  def mark(position)
-    board
+  private
+
+  def display_space(space, index)
+    print '|'
+    empty_space = space.nil? ? true : false
+    empty_space ? (print '   ') : (print " #{space} ")
+    print '|' if index == 2
   end
 end
 
 board = Board.new
 board.display
+board.mark(5, 'X')

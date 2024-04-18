@@ -3,7 +3,7 @@
 # show the user how to play
 # show the user what number to enter (e.g. 1 is the top left most board, 9 is the bottom right)
 # 2 means to put a mark on item 2
-# * show which player's turn it is (e.g. if player 1, then show "player 1 (X guy)'s' turn, select where you would like to put an X")
+# show which player's turn it is (e.g. if player 1, then show "player 1 (X guy)'s' turn, select where you would like to put an X")
 # * after the user makes a choice
 # * show the board state after choice
 # * run some validation
@@ -17,7 +17,7 @@
 class Board
   PLAYER_1_TURN_PROMPT = "Player 1's turn!, enter where you would like to mark an X".freeze
   PLAYER_2_TURN_PROMPT = "Player 2's turn!, enter where you would like to mark an O".freeze
-  attr_accessor :board, :mark_types
+  attr_accessor :board, :mark_types, :victor
 
   def initialize
     @board = [
@@ -49,24 +49,42 @@ class Board
     puts "\n#{PLAYER_2_TURN_PROMPT}\nPlayer 2's choice : 9"
     puts "\nThe board will then look like;"
     demo_board.mark(9, 'O')
+    puts "----- End of introduction -----\n\n"
   end
 
-  def play
-    while @victor.nil?
+  def play(with_introduction: false)
+    introduction if with_introduction == true
+    puts "TicTacToe game start\nBoard State"
+    display(board)
+    begin
+      while @victor.nil?
 
-      p1_choice = nil
-      until valid_position?(p1_choice)
-        puts PLAYER_1_TURN_PROMPT
-        p1_choice = gets.chomp
-        puts "#{position} is an invalid position!"
+        p1_choice = nil
+        loop do
+
+          puts PLAYER_1_TURN_PROMPT
+          p1_choice = gets.chomp
+
+          if valid_position?(p1_choice)
+            p1_choice = valid_position?(p1_choice) ? p1_choice.to_i : p1_choice
+            break
+          end
+
+          # puts "valid_position?(p1_choice) : #{valid_position?(p1_choice)}"
+          puts "Error : #{p1_choice} is an invalid position :( Please try again!\n\n"
+        end
+
+        puts "loop end"
+        self.victor = 'Player 1'
+
       end
-      self.victor = 'Player 1'
-
+    rescue Interrupt
+      puts "\nGame manually ended"
     end
   end
 
   def mark(position, mark_type)
-    return unless is_valid_position?(position)
+    return unless valid_position?(position)
 
     row = get_row_index_by_position(position)
     column = get_col_index_by_position(position)
@@ -77,8 +95,7 @@ class Board
   private
 
   def valid_position?(position)
-    return false unless position.is_a?(Integer)
-    return false unless position.positive && position <= 9
+    return false unless position.to_i.positive? && position.to_i <= 9
 
     true
   end
@@ -109,7 +126,7 @@ class Board
 end
 
 board = Board.new
-board.introduction
+board.play(with_introduction: false)
 # board.display
 # board.mark(5, 'X')
 

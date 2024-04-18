@@ -1,1 +1,1 @@
-puts 7 / 3
+puts "1".to_i.positive?

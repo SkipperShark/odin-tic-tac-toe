@@ -4,8 +4,7 @@
 # show the user what number to enter (e.g. 1 is the top left most board, 9 is the bottom right)
 # 2 means to put a mark on item 2
 # show which player's turn it is (e.g. if player 1, then show "player 1 (X guy)'s' turn, select where you would like to put an X")
-# * after the user makes a choice
-# * show the board state after choice
+# after the user makes a choice show the board state after choice
 # * run some validation
 # * dont allow user to put a mark where a mark is already there
 # * after the user places a mark, check whether anyone has lost
@@ -17,7 +16,7 @@
 class Board
   PLAYER_1_TURN_PROMPT = "Player 1's turn!, enter where you would like to mark an X".freeze
   PLAYER_2_TURN_PROMPT = "Player 2's turn!, enter where you would like to mark an O".freeze
-  attr_accessor :board, :mark_types, :victor
+  attr_accessor :board, :mark_types, :victor, :player_1_turn
 
   def initialize
     @board = [
@@ -32,6 +31,7 @@ class Board
     ]
     @mark_types = %w[X O x o]
     @victor = nil
+    @player_1_turn = true
   end
 
   def introduction
@@ -59,23 +59,26 @@ class Board
     begin
       while @victor.nil?
 
-        p1_choice = nil
+        p_choice = nil
+        player_1_turn ? (puts PLAYER_1_TURN_PROMPT) : (puts PLAYER_2_TURN_PROMPT)
         loop do
+          p_choice = gets.chomp
 
-          puts PLAYER_1_TURN_PROMPT
-          p1_choice = gets.chomp
-
-          if valid_position?(p1_choice)
-            p1_choice = valid_position?(p1_choice) ? p1_choice.to_i : p1_choice
-            break
+          unless valid_position?(p_choice)
+            puts "Error : #{p_choice} is an invalid position :( Please try again!\n"
+            next
           end
 
-          # puts "valid_position?(p1_choice) : #{valid_position?(p1_choice)}"
-          puts "Error : #{p1_choice} is an invalid position :( Please try again!\n\n"
-        end
+          p_choice = valid_position?(p_choice) ? p_choice.to_i : p_choice
 
-        puts "loop end"
-        self.victor = 'Player 1'
+          unless space_empty?(p_choice)
+            puts "Error : #{p_choice} already has a mark. Please try again!\n"
+            next
+          end
+
+          break
+        end
+        mark(p_choice, mark_type)
 
       end
     rescue Interrupt
@@ -83,12 +86,13 @@ class Board
     end
   end
 
-  def mark(position, mark_type)
+  def mark(position)
     return unless valid_position?(position)
-
+    mark_type = player_1_turn ? 'X' : 'O'
     row = get_row_index_by_position(position)
     column = get_col_index_by_position(position)
     board[row][column] = mark_type
+    self.player_1_turn = !player_1_turn
     display(@board)
   end
 
@@ -114,6 +118,12 @@ class Board
     empty_space = space.nil? ? true : false
     empty_space ? (print '   ') : (print " #{space} ")
     print '|' if index == 2
+  end
+
+  def space_empty?(position)
+    row = get_row_index_by_position(position)
+    column = get_col_index_by_position(position)
+    board[row][column].nil?
   end
 
   def get_row_index_by_position(position)

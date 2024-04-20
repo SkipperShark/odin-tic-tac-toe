@@ -6,9 +6,9 @@
 # show which player's turn it is (e.g. if player 1, then show "player 1 (X guy)'s' turn, select where you would like to put an X")
 # after the user makes a choice show the board state after choice
 # * run some validation
-  # dont allow user to put a mark where a mark is already there
-  # * after the user places a mark, check whether anyone has won
-  # * check for draw condition
+# dont allow user to put a mark where a mark is already there
+# * after the user places a mark, check whether anyone has won
+# * check for draw condition
 # * show who won
 # * ask if users would like to play again
 
@@ -80,22 +80,7 @@ class Board
         break
       end
       mark(p_choice)
-
-      #todo check if a winner is present
-      #* check horizontally
-      board.each.with_index(1) |space, index| do
-
-
-      end
-
-
-      #* check vertically
-
-
-
-      #* check diagonally
-      [0][0], [1][1], [2][2]
-      [0][2], [1][1], [2][1]
+      game_end_condition_met?
 
     end
     # rescue Interrupt
@@ -105,6 +90,7 @@ class Board
 
   def mark(position)
     return unless valid_position?(position)
+
     mark_type = player_1_turn ? 'X' : 'O'
     row = get_row_index_by_position(position)
     column = get_col_index_by_position(position)
@@ -115,10 +101,47 @@ class Board
 
   private
 
-  def game_end_condition_met?()
+  def game_end_condition_met?
+    # TODO: check if a winner is present
+    # * check horizontally
+    game_ended = false
+    board.each.with_index(0) do |row, index|
+      puts "row : #{row}"
+      game_ended = true
 
+      start_mark = row[0]
+
+      #* check horizontally
+
+      puts "start_mark : #{start_mark}"
+      row.each do |col|
+        if col != start_mark || col.nil?
+          game_ended = false
+          break
+        end
+      end
+      puts "game_ended : #{game_ended}"
+
+      #* check vertically
+
+      row.each do |col|
+        if col != start_mark || col.nil?
+          game_ended = false
+          break
+        end
+      end
+
+
+    end
+
+    puts "end of loop - game_ended : #{game_ended}"
+
+    # * check vertically
+
+    # * check diagonally
+    # [0][0], [1][1], [2][2]
+    # [0][2], [1][1], [2][1]
   end
-
 
   def valid_position?(position)
     return false unless position.to_i.positive? && position.to_i <= 9

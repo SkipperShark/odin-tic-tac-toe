@@ -6,9 +6,9 @@
 # show which player's turn it is (e.g. if player 1, then show "player 1 (X guy)'s' turn, select where you would like to put an X")
 # after the user makes a choice show the board state after choice
 # * run some validation
-# * dont allow user to put a mark where a mark is already there
-# * after the user places a mark, check whether anyone has lost
-# * check for draw condition
+  # dont allow user to put a mark where a mark is already there
+  # * after the user places a mark, check whether anyone has won
+  # * check for draw condition
 # * show who won
 # * ask if users would like to play again
 
@@ -56,34 +56,51 @@ class Board
     introduction if with_introduction == true
     puts "TicTacToe game start\nBoard State"
     display(board)
-    begin
-      while @victor.nil?
+    # begin
+    while @victor.nil?
 
-        p_choice = nil
-        player_1_turn ? (puts PLAYER_1_TURN_PROMPT) : (puts PLAYER_2_TURN_PROMPT)
-        loop do
-          p_choice = gets.chomp
+      player_1_turn ? (puts PLAYER_1_TURN_PROMPT) : (puts PLAYER_2_TURN_PROMPT)
 
-          unless valid_position?(p_choice)
-            puts "Error : #{p_choice} is an invalid position :( Please try again!\n"
-            next
-          end
+      p_choice = nil
+      loop do
+        p_choice = gets.chomp
 
-          p_choice = valid_position?(p_choice) ? p_choice.to_i : p_choice
-
-          unless space_empty?(p_choice)
-            puts "Error : #{p_choice} already has a mark. Please try again!\n"
-            next
-          end
-
-          break
+        unless valid_position?(p_choice)
+          puts "Error : #{p_choice} is an invalid position :( Please try again!\n"
+          next
         end
-        mark(p_choice, mark_type)
+
+        p_choice = valid_position?(p_choice) ? p_choice.to_i : p_choice
+
+        unless space_empty?(p_choice)
+          puts "Error : #{p_choice} already has a mark. Please try again!\n"
+          next
+        end
+
+        break
+      end
+      mark(p_choice)
+
+      #todo check if a winner is present
+      #* check horizontally
+      board.each.with_index(1) |space, index| do
+
 
       end
-    rescue Interrupt
-      puts "\nGame manually ended"
+
+
+      #* check vertically
+
+
+
+      #* check diagonally
+      [0][0], [1][1], [2][2]
+      [0][2], [1][1], [2][1]
+
     end
+    # rescue Interrupt
+    #   puts "\nGame manually ended"
+    # end
   end
 
   def mark(position)
@@ -97,6 +114,11 @@ class Board
   end
 
   private
+
+  def game_end_condition_met?()
+
+  end
+
 
   def valid_position?(position)
     return false unless position.to_i.positive? && position.to_i <= 9

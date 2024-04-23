@@ -11,5 +11,7 @@
     @mark_types = %w[X O x o]
     @victor = nil
     @player_1_turn = true
-    pp @sample_board_position
-    pp @sample_board_position.transpose
+    # pp @sample_board_position
+    # pp @sample_board_position.transpose
+    pp (0...@board.length).collect {|i| @sample_board_position[i][i]}
+    pp (0...@board.length).collect {|i| @sample_board_position.map(&:reverse) [i][i]}

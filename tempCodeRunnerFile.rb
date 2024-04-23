@@ -11,4 +11,5 @@
     @mark_types = %w[X O x o]
     @victor = nil
     @player_1_turn = true
-    puts @board.length
+    pp @sample_board_position
+    pp @sample_board_position.transpose

@@ -113,12 +113,16 @@ class Board
     # check horizontally
     board.each do |row|
       num_same_marks = row.count { |space| space == row.first && !space.nil?}
-      game_ended = true if num_same_marks >= num_marks_to_win
-      puts game_ended
+      return true if num_same_marks >= num_marks_to_win
     end
 
-
     # check vertically
+    board.transpose.each do |row|
+      num_same_marks = row.count { |space| space == row.first && !space.nil?}
+      return true if num_same_marks >= num_marks_to_win
+    end
+
+    # check diagonally
 
     # (0...num_cols).each do |col_index|
     #   start_mark = board[0][col_index]

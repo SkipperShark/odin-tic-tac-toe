@@ -8,6 +8,7 @@
 # * run some validation
 # dont allow user to put a mark where a mark is already there
 # * after the user places a mark, check whether anyone has won
+#* check who won
 # * check for draw condition
 # * show who won
 # * ask if users would like to play again
@@ -103,44 +104,36 @@ class Board
 
   def game_end_condition_met?
     # TODO: check if a winner is present
-    # * check horizontally
+
+    num_rows = board.length
+    num_cols = num_rows
+    num_marks_to_win = num_cols
     game_ended = false
-    board.each.with_index(0) do |row, index|
-      puts "row : #{row}"
-      game_ended = true
 
-      start_mark = row[0]
-
-      #* check horizontally
-
-      puts "start_mark : #{start_mark}"
-      row.each do |col|
-        if col != start_mark || col.nil?
-          game_ended = false
-          break
-        end
-      end
-      puts "game_ended : #{game_ended}"
-
-      #* check vertically
-
-      row.each do |col|
-        if col != start_mark || col.nil?
-          game_ended = false
-          break
-        end
-      end
-
-
+    # check horizontally
+    board.each do |row|
+      num_same_marks = row.count { |space| space == row.first && !space.nil?}
+      game_ended = true if num_same_marks >= num_marks_to_win
+      puts game_ended
     end
+
+
+    # check vertically
+
+    # (0...num_cols).each do |col_index|
+    #   start_mark = board[0][col_index]
+    #   # puts "\n\ncol_index : #{col_index}, start_mark : #{start_mark}"
+
+    #   (0...num_rows).each do |row_index|
+    #     space = board[row_index][col_index]
+    #     # puts "space : #{space}, row_index : #{row_index}"
+    #     game_ended = false if space != start_mark || space.nil?
+    #   end
+    # end
 
     puts "end of loop - game_ended : #{game_ended}"
 
-    # * check vertically
-
     # * check diagonally
-    # [0][0], [1][1], [2][2]
-    # [0][2], [1][1], [2][1]
   end
 
   def valid_position?(position)

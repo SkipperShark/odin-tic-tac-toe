@@ -9,6 +9,7 @@
 # dont allow user to put a mark where a mark is already there
 # after the user places a mark, check whether anyone has won
 #* check who won
+#* for some reason, the while loop doesnt end when we set the victor to a string
 # * check for draw condition
 # * show who won
 # * ask if users would like to play again
@@ -61,47 +62,61 @@ class Board
     introduction if with_introduction == true
     puts "TicTacToe game start\nBoard State"
     display(board)
-    # begin
-    while @victor.nil?
+    begin
+      # while victor == nil
+      while @victor.nil?
 
-      player_1_turn ? (puts PLAYER_1_TURN_PROMPT) : (puts PLAYER_2_TURN_PROMPT)
+        player_1_turn ? (puts PLAYER_1_TURN_PROMPT) : (puts PLAYER_2_TURN_PROMPT)
 
-      p_choice = nil
-      loop do
-        p_choice = gets.chomp
+        p_choice = nil
+        loop do
+          p_choice = gets.chomp
 
-        unless valid_position?(p_choice)
-          puts "Error : #{p_choice} is an invalid position :( Please try again!\n"
-          next
+          unless valid_position?(p_choice)
+            puts "Error : #{p_choice} is an invalid position :( Please try again!\n"
+            next
+          end
+
+          p_choice = valid_position?(p_choice) ? p_choice.to_i : p_choice
+
+          unless space_empty?(p_choice)
+            puts "Error : #{p_choice} already has a mark. Please try again!\n"
+            next
+          end
+
+          break
+        end
+        mark(p_choice)
+        display(@board)
+
+
+        puts "game_end_condition_met : #{game_end_condition_met?}"
+        puts "player_1_turn : #{player_1_turn}"
+
+        if game_end_condition_met?
+          self.victor = player_1_turn ? "player 1 (X)" : "player 2 (O)"
         end
 
-        p_choice = valid_position?(p_choice) ? p_choice.to_i : p_choice
+        puts "victor : #{victor}"
+        puts "victor.nil : #{victor.nil?}"
 
-        unless space_empty?(p_choice)
-          puts "Error : #{p_choice} already has a mark. Please try again!\n"
-          next
-        end
+        self.player_1_turn = !player_1_turn
 
-        break
       end
-      mark(p_choice)
-      game_end_condition_met?
 
+      puts "winner : #{victor}"
+
+    rescue Interrupt
+      puts "\nGame manually ended"
     end
-    # rescue Interrupt
-    #   puts "\nGame manually ended"
-    # end
   end
 
   def mark(position)
     return unless valid_position?(position)
-
     mark_type = player_1_turn ? 'X' : 'O'
     row = get_row_index_by_position(position)
     column = get_col_index_by_position(position)
     board[row][column] = mark_type
-    self.player_1_turn = !player_1_turn
-    display(@board)
   end
 
   private
@@ -117,13 +132,21 @@ class Board
     # check horizontally
     board.each do |row|
       num_same_marks = row.count { |space| space == row.first && !space.nil?}
-      return true if num_same_marks >= num_marks_to_win
+      if num_same_marks >= num_marks_to_win
+        puts "horizontal win condition met"
+        return true
+      end
+      # return true if num_same_marks >= num_marks_to_win
     end
 
     # check vertically
     board.transpose.each do |row|
       num_same_marks = row.count { |space| space == row.first && !space.nil?}
-      return true if num_same_marks >= num_marks_to_win
+      if num_same_marks >= num_marks_to_win
+        puts "verticals win condition met"
+        return true
+      end
+      # return true if num_same_marks >= num_marks_to_win
     end
 
     # check diagonally (top left to bottom right)

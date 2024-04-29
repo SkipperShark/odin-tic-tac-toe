@@ -5,15 +5,15 @@
 # 2 means to put a mark on item 2
 # show which player's turn it is (e.g. if player 1, then show "player 1 (X guy)'s' turn, select where you would like to put an X")
 # after the user makes a choice show the board state after choice
-# * run some validation
+# run some validation
 # dont allow user to put a mark where a mark is already there
 # after the user places a mark, check whether anyone has won
-#* check who won
+# check who won
 # for some reason, the while loop doesnt end when we set the victor to a string
   # it's because we need to use either @victor or self.victor
 # check for draw condition
-# * show who won
-# * ask if users would like to play again
+# show who won
+# ask if users would like to play again
 
 # Represents the tic tac toe board
 class Board
@@ -23,26 +23,7 @@ class Board
   attr_reader :num_rows, :num_cols, :num_marks_to_win
 
   def initialize
-    @board = [
-      [nil, nil, nil],
-      [nil, nil, nil],
-      [nil, nil, nil]
-    ]
-    @sample_board_position = [
-      [1, 2, 3],
-      [4, 5, 6],
-      [7, 8, 9]
-    ]
-    @mark_types = %w[X O x o]
-    @victor = nil
-    @player_1_turn = true
-    @num_rows = @board.length
-    @num_cols = num_rows
-    @num_marks_to_win = num_cols
-    # pp @sample_board_position
-    # pp @sample_board_position.transpose
-    # pp (0...@board.length).collect {|i| @sample_board_position[i][i]}
-    # pp (0...@board.length).collect {|i| @sample_board_position.map(&:reverse) [i][i]}
+    setup
   end
 
   def introduction
@@ -98,22 +79,31 @@ class Board
 
         game_state = check_game_end_condition
         winner_found = game_state[:end_condition_met] == true && game_state[:draw] == false
-
-        if winner_found
-          self.victor = player_1_turn ? "player 1 (X)" : "player 2 (O)"
-        end
+        self.victor = player_1_turn ? 'player 1 (X)' : 'player 2 (O)' if winner_found
 
         draw = game_state[:end_condition_met] == true && game_state[:draw] == true
-
-        if draw
-          self.victor = "Noone! It's a draw!"
-        end
+        self.victor = "Noone! It's a draw!" if draw
 
         self.player_1_turn = !player_1_turn
       end
 
       puts "winner : #{victor}"
 
+      puts 'Game Ended, would you like to play again? (Y/N)'
+      user_input = nil
+      until %w[Y,N].include? user_input
+        user_input = gets.chomp.upcase
+
+        if user_input == 'Y'
+          setup
+          play
+        elsif user_input == 'N'
+          puts 'Game Ended'
+          break
+        else
+          puts "I'm not sure what you mean, please try again"
+        end
+      end
     rescue Interrupt
       puts "\nGame manually ended"
     end
@@ -121,12 +111,12 @@ class Board
 
   def mark(position)
     return unless valid_position?(position)
+
     mark_type = player_1_turn ? 'X' : 'O'
     row = get_row_index_by_position(position)
     column = get_col_index_by_position(position)
     board[row][column] = mark_type
   end
-
 
   def display(board)
     board.each do |row|
@@ -140,15 +130,14 @@ class Board
   private
 
   def check_game_end_condition
-
     end_condition = {
-      :end_condition_met => false,
-      :draw => false
+      end_condition_met: false,
+      draw: false
     }
 
     # check horizontally
     board.each do |row|
-      num_same_marks = row.count { |space| space == row.first && !space.nil?}
+      num_same_marks = row.count { |space| space == row.first && !space.nil? }
       if num_same_marks >= num_marks_to_win
         end_condition[:end_condition_met] = true
         return end_condition
@@ -157,7 +146,7 @@ class Board
 
     # check vertically
     board.transpose.each do |row|
-      num_same_marks = row.count { |space| space == row.first && !space.nil?}
+      num_same_marks = row.count { |space| space == row.first && !space.nil? }
       if num_same_marks >= num_marks_to_win
         end_condition[:end_condition_met] = true
         return end_condition
@@ -165,29 +154,28 @@ class Board
     end
 
     # check diagonally (top left to bottom right)
-    diag_spaces = (0...num_rows).collect{|i| board[i][i]}
-    if diag_spaces.count{|space| space == diag_spaces.first && !space.nil?} >= num_marks_to_win
+    diag_spaces = (0...num_rows).collect { |i| board[i][i] }
+    if diag_spaces.count { |space| space == diag_spaces.first && !space.nil? } >= num_marks_to_win
       end_condition[:end_condition_met] = true
       return end_condition
     end
 
     # check diagonally (top right to bottom left)
-    diag_spaces = (0...num_rows).collect{|i| board.map(&:reverse)[i][i]}
-    if diag_spaces.count{|space| space == diag_spaces.first && !space.nil?} >= num_marks_to_win
+    diag_spaces = (0...num_rows).collect { |i| board.map(&:reverse)[i][i] }
+    if diag_spaces.count { |space| space == diag_spaces.first && !space.nil? } >= num_marks_to_win
       end_condition[:end_condition_met] = true
       return end_condition
     end
 
     # check for draw condition
-    all_spaces_marked_but_no_winner = board.flatten.count { |space| !space.nil?} == num_rows * num_cols ? true : false
+    all_spaces_marked_but_no_winner = board.flatten.count { |space| !space.nil? } == num_rows * num_cols
     if all_spaces_marked_but_no_winner
-        end_condition[:end_condition_met] = true
-        end_condition[:draw] = true
-        return end_condition
+      end_condition[:end_condition_met] = true
+      end_condition[:draw] = true
+      return end_condition
     end
 
-    return end_condition
-
+    end_condition
   end
 
   def valid_position?(position)
@@ -216,26 +204,26 @@ class Board
   def get_col_index_by_position(position)
     ((position - 1) % 3).to_i
   end
+
+  def setup
+    @board = [
+      [nil, nil, nil],
+      [nil, nil, nil],
+      [nil, nil, nil]
+    ]
+    @sample_board_position = [
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 9]
+    ]
+    @mark_types = %w[X O x o]
+    @victor = nil
+    @player_1_turn = true
+    @num_rows = @board.length
+    @num_cols = num_rows
+    @num_marks_to_win = num_cols
+  end
 end
 
 board = Board.new
 board.play(with_introduction: true)
-# board.display
-# board.mark(5, 'X')
-
-# def get_row(num)
-#   ((num - 1) / 3).to_i
-# end
-
-# def get_col(num)
-#   ((num - 1) % 3).to_i
-# end
-# puts "1, row : #{get_row(1)}, col : #{get_col(1)}"
-# puts "2, row : #{get_row(2)}, col : #{get_col(2)}"
-# puts "3, row : #{get_row(3)}, col : #{get_col(3)}"
-# puts "4, row : #{get_row(4)}, col : #{get_col(4)}"
-# puts "5, row : #{get_row(5)}, col : #{get_col(5)}"
-# puts "6, row : #{get_row(6)}, col : #{get_col(6)}"
-# puts "7, row : #{get_row(7)}, col : #{get_col(7)}"
-# puts "8, row : #{get_row(8)}, col : #{get_col(8)}"
-# puts "9, row : #{get_row(9)}, col : #{get_col(9)}"

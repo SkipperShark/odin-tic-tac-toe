@@ -11,7 +11,7 @@
 #* check who won
 # for some reason, the while loop doesnt end when we set the victor to a string
   # it's because we need to use either @victor or self.victor
-# * check for draw condition
+# check for draw condition
 # * show who won
 # * ask if users would like to play again
 
@@ -56,10 +56,13 @@ class Board
     puts "\n#{PLAYER_1_TURN_PROMPT}"
     puts "Player 1's choice : 5\nThe board will then look like;"
     demo_board = Board.new
-    demo_board.mark(5, 'X')
+    demo_board.mark(5)
+    demo_board.player_1_turn = !demo_board.player_1_turn
+    demo_board.display(demo_board.board)
     puts "\n#{PLAYER_2_TURN_PROMPT}\nPlayer 2's choice : 9"
     puts "\nThe board will then look like;"
-    demo_board.mark(9, 'O')
+    demo_board.mark(9)
+    demo_board.display(demo_board.board)
     puts "----- End of introduction -----\n\n"
   end
 
@@ -93,19 +96,20 @@ class Board
         mark(p_choice)
         display(@board)
 
+        game_state = check_game_end_condition
+        winner_found = game_state[:end_condition_met] == true && game_state[:draw] == false
 
-        # puts "game_end_condition_met : #{check_game_end_condition}"
-        # puts "player_1_turn : #{player_1_turn}"
-
-        if check_game_end_condition
+        if winner_found
           self.victor = player_1_turn ? "player 1 (X)" : "player 2 (O)"
         end
 
-        puts "victor : #{victor}"
-        puts "victor.nil : #{victor.nil?}"
+        draw = game_state[:end_condition_met] == true && game_state[:draw] == true
+
+        if draw
+          self.victor = "Noone! It's a draw!"
+        end
 
         self.player_1_turn = !player_1_turn
-
       end
 
       puts "winner : #{victor}"
@@ -123,53 +127,6 @@ class Board
     board[row][column] = mark_type
   end
 
-  private
-
-  def check_game_end_condition
-
-    end_condition = {
-      :end_condition_met : false,
-      :draw : false
-    }
-
-    # check horizontally
-    board.each do |row|
-      num_same_marks = row.count { |space| space == row.first && !space.nil?}
-      end_condition[:end_condition_met] = true if num_same_marks >= num_marks_to_win
-      return end_condition
-    end
-
-    # check vertically
-    board.transpose.each do |row|
-      num_same_marks = row.count { |space| space == row.first && !space.nil?}
-      end_condition[:end_condition_met] = true if num_same_marks >= num_marks_to_win
-      return end_condition
-    end
-
-    # check diagonally (top left to bottom right)
-    diag_spaces = (0...num_rows).collect{|i| board[i][i]}
-      end_condition[:end_condition_met] = true if diag_spaces.count{|space| space == diag_spaces.first && !space.nil?} >= num_marks_to_win
-      return end_condition
-    end
-
-    # check diagonally (top right to bottom left)
-    diag_spaces = (0...num_rows).collect{|i| board.map(&:reverse)[i][i]}
-    end_condition[:end_condition_met] = true if diag_spaces.count{|space| space == diag_spaces.first && !space.nil?} >= num_marks_to_win
-    return end_condition
-
-    # check for draw condition
-    board.each do |row|
-      end_condition[:draw] = true if  row.count { |space| space.nil?} == num_rows * num_cols
-      return end_condition
-    end
-
-  end
-
-  def valid_position?(position)
-    return false unless position.to_i.positive? && position.to_i <= 9
-
-    true
-  end
 
   def display(board)
     board.each do |row|
@@ -178,6 +135,65 @@ class Board
       end
       print "\n"
     end
+  end
+
+  private
+
+  def check_game_end_condition
+
+    end_condition = {
+      :end_condition_met => false,
+      :draw => false
+    }
+
+    # check horizontally
+    board.each do |row|
+      num_same_marks = row.count { |space| space == row.first && !space.nil?}
+      if num_same_marks >= num_marks_to_win
+        end_condition[:end_condition_met] = true
+        return end_condition
+      end
+    end
+
+    # check vertically
+    board.transpose.each do |row|
+      num_same_marks = row.count { |space| space == row.first && !space.nil?}
+      if num_same_marks >= num_marks_to_win
+        end_condition[:end_condition_met] = true
+        return end_condition
+      end
+    end
+
+    # check diagonally (top left to bottom right)
+    diag_spaces = (0...num_rows).collect{|i| board[i][i]}
+    if diag_spaces.count{|space| space == diag_spaces.first && !space.nil?} >= num_marks_to_win
+      end_condition[:end_condition_met] = true
+      return end_condition
+    end
+
+    # check diagonally (top right to bottom left)
+    diag_spaces = (0...num_rows).collect{|i| board.map(&:reverse)[i][i]}
+    if diag_spaces.count{|space| space == diag_spaces.first && !space.nil?} >= num_marks_to_win
+      end_condition[:end_condition_met] = true
+      return end_condition
+    end
+
+    # check for draw condition
+    all_spaces_marked_but_no_winner = board.flatten.count { |space| !space.nil?} == num_rows * num_cols ? true : false
+    if all_spaces_marked_but_no_winner
+        end_condition[:end_condition_met] = true
+        end_condition[:draw] = true
+        return end_condition
+    end
+
+    return end_condition
+
+  end
+
+  def valid_position?(position)
+    return false unless position.to_i.positive? && position.to_i <= 9
+
+    true
   end
 
   def display_space(space, index)
@@ -203,7 +219,7 @@ class Board
 end
 
 board = Board.new
-board.play(with_introduction: false)
+board.play(with_introduction: true)
 # board.display
 # board.mark(5, 'X')
 

@@ -30,7 +30,7 @@ class Board
 
   def check_game_end_condition
     end_condition = { end_condition_met: false, draw: false }
-    if winner_found_horizontally || winner_found_vertically || winner_found_diagonally
+    if game_over_horizontal || game_over_vertical || game_over_clockwise_diag || game_over_anti_clockwise_diag
       end_condition[:end_condition_met] = true
       return end_condition
     end
@@ -49,35 +49,44 @@ class Board
     true
   end
 
+  def space_empty?(position)
+    row = get_row_index_by_position(position)
+    column = get_col_index_by_position(position)
+    board[row][column].nil?
+  end
+
   private
 
-  def winner_found_horizontally
+  def game_over_horizontal
     board.each do |row|
       num_same_marks = row.count { |space| space == row.first && !space.nil? }
       return true if num_same_marks >= num_marks_to_win
     end
+    false
   end
 
-  def winner_found_vertically
+  def game_over_vertical
     board.transpose.each do |row|
       num_same_marks = row.count { |space| space == row.first && !space.nil? }
       return true if num_same_marks >= num_marks_to_win
     end
+    false
   end
 
-  def winner_found_diagonally
+  def game_over_clockwise_diag
     # check diagonally (top left to bottom right)
     diag_spaces = (0...num_rows).collect { |i| board[i][i] }
-    return true if diag_spaces.count { |space| space == diag_spaces.first && !space.nil? } >= num_marks_to_win
+    diag_spaces.count { |space| space == diag_spaces.first && !space.nil? } >= num_marks_to_win
+  end
 
+  def game_over_anti_clockwise_diag
     # check diagonally (top right to bottom left)
     diag_spaces = (0...num_rows).collect { |i| board.map(&:reverse)[i][i] }
-    true if diag_spaces.count { |space| space == diag_spaces.first && !space.nil? } >= num_marks_to_win
+    diag_spaces.count { |space| space == diag_spaces.first && !space.nil? } >= num_marks_to_win
   end
 
   def draw_found
-    all_spaces_marked_but_no_winner = board.flatten.count { |space| !space.nil? } == num_rows * num_cols
-    true if all_spaces_marked_but_no_winner
+    board.flatten.count { |space| !space.nil? } == num_rows * num_cols
   end
 
   def display_space(space, index)
@@ -85,12 +94,6 @@ class Board
     empty_space = space.nil? ? true : false
     empty_space ? (print '   ') : (print " #{space} ")
     print '|' if index == 2
-  end
-
-  def space_empty?(position)
-    row = get_row_index_by_position(position)
-    column = get_col_index_by_position(position)
-    board[row][column].nil?
   end
 
   def get_row_index_by_position(position)

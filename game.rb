@@ -19,14 +19,12 @@ class Game
     puts "\nThe position of each space is represented by a number, as seen below"
     board.display(display_sample_board: true)
     puts "\nUpon the game prompting you for your turn, enter the position you would like to put your mark"
-    puts "\nLet's demo how the first round might look like"
-    puts "\n#{PLAYER_1_TURN_PROMPT}"
+    puts "\nLet's demo how the first round might look like\n#{PLAYER_1_TURN_PROMPT}"
     puts "Player 1's choice : 5\nThe board will then look like;"
     demo_board = Board.new
     demo_board.mark(5, player_1_turn: true)
     demo_board.display
-    puts "\n#{PLAYER_2_TURN_PROMPT}\nPlayer 2's choice : 9"
-    puts "\nThe board will then look like;"
+    puts "\n#{PLAYER_2_TURN_PROMPT}\nPlayer 2's choice : 9\nThe board will then look like;"
     demo_board.mark(9, player_1_turn: false)
     demo_board.display
     puts "----- End of introduction -----\n\n"

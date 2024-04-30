@@ -29,51 +29,17 @@ class Board
   end
 
   def check_game_end_condition
-    end_condition = {
-      end_condition_met: false,
-      draw: false
-    }
-
-    # check horizontally
-    board.each do |row|
-      num_same_marks = row.count { |space| space == row.first && !space.nil? }
-      if num_same_marks >= num_marks_to_win
-        end_condition[:end_condition_met] = true
-        return end_condition
-      end
-    end
-
-    # check vertically
-    board.transpose.each do |row|
-      num_same_marks = row.count { |space| space == row.first && !space.nil? }
-      if num_same_marks >= num_marks_to_win
-        end_condition[:end_condition_met] = true
-        return end_condition
-      end
-    end
-
-    # check diagonally (top left to bottom right)
-    diag_spaces = (0...num_rows).collect { |i| board[i][i] }
-    if diag_spaces.count { |space| space == diag_spaces.first && !space.nil? } >= num_marks_to_win
+    end_condition = { end_condition_met: false, draw: false }
+    if winner_found_horizontally || winner_found_vertically || winner_found_diagonally
       end_condition[:end_condition_met] = true
       return end_condition
     end
 
-    # check diagonally (top right to bottom left)
-    diag_spaces = (0...num_rows).collect { |i| board.map(&:reverse)[i][i] }
-    if diag_spaces.count { |space| space == diag_spaces.first && !space.nil? } >= num_marks_to_win
-      end_condition[:end_condition_met] = true
-      return end_condition
-    end
-
-    # check for draw condition
-    all_spaces_marked_but_no_winner = board.flatten.count { |space| !space.nil? } == num_rows * num_cols
-    if all_spaces_marked_but_no_winner
+    if draw_found
       end_condition[:end_condition_met] = true
       end_condition[:draw] = true
-      return end_condition
-    end
 
+    end
     end_condition
   end
 
@@ -81,6 +47,37 @@ class Board
     return false unless position.to_i.positive? && position.to_i <= 9
 
     true
+  end
+
+  private
+
+  def winner_found_horizontally
+    board.each do |row|
+      num_same_marks = row.count { |space| space == row.first && !space.nil? }
+      return true if num_same_marks >= num_marks_to_win
+    end
+  end
+
+  def winner_found_vertically
+    board.transpose.each do |row|
+      num_same_marks = row.count { |space| space == row.first && !space.nil? }
+      return true if num_same_marks >= num_marks_to_win
+    end
+  end
+
+  def winner_found_diagonally
+    # check diagonally (top left to bottom right)
+    diag_spaces = (0...num_rows).collect { |i| board[i][i] }
+    return true if diag_spaces.count { |space| space == diag_spaces.first && !space.nil? } >= num_marks_to_win
+
+    # check diagonally (top right to bottom left)
+    diag_spaces = (0...num_rows).collect { |i| board.map(&:reverse)[i][i] }
+    true if diag_spaces.count { |space| space == diag_spaces.first && !space.nil? } >= num_marks_to_win
+  end
+
+  def draw_found
+    all_spaces_marked_but_no_winner = board.flatten.count { |space| !space.nil? } == num_rows * num_cols
+    true if all_spaces_marked_but_no_winner
   end
 
   def display_space(space, index)
@@ -105,18 +102,8 @@ class Board
   end
 
   def setup
-    @board = [
-      [nil, nil, nil],
-      [nil, nil, nil],
-      [nil, nil, nil]
-    ]
-    @sample_board_position = [
-      [1, 2, 3],
-      [4, 5, 6],
-      [7, 8, 9]
-    ]
-    @victor = nil
-    @player_1_turn = true
+    @board = [[nil, nil, nil], [nil, nil, nil], [nil, nil, nil]]
+    @sample_board_position = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
     @num_rows = @board.length
     @num_cols = num_rows
     @num_marks_to_win = num_cols
